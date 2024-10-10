@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.google.protobuf' version '0.9.4' // Protobuf 파일을 컴파일할 수 있게 해주는 Gradle 플러그인, https://plugins.gradle.org/plugin/com.google.protobuf
+}
+
+group = 'org.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // protobuf-java: 핵심 Java Protocol Buffers 라이브러리. 대부분 사용자는 이 아티팩트만 필요합니다.
+    implementation 'com.google.protobuf:protobuf-java:4.28.2'
+    // protobuf-java-util: protos를 다루는 유틸리티. JSON 지원과 proto3 잘 알려진 유형을 다루는 유틸리티를 포함합니다.
+    implementation 'com.google.protobuf:protobuf-java-util:4.28.2'
+    implementation 'com.google.protobuf:protoc:4.28.2'
+
+    implementation "io.grpc:grpc-protobuf:1.68.0"  // gRPC를 사용할 경우
+    implementation "io.grpc:grpc-stub:1.68.0"      // gRPC를 사용할 경우
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.28.2"
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
