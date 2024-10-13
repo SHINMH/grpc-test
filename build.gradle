@@ -24,32 +24,51 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+
     // protobuf-java: 핵심 Java Protocol Buffers 라이브러리. 대부분 사용자는 이 아티팩트만 필요합니다.
     implementation 'com.google.protobuf:protobuf-java:4.28.2'
     // protobuf-java-util: protos를 다루는 유틸리티. JSON 지원과 proto3 잘 알려진 유형을 다루는 유틸리티를 포함합니다.
     implementation 'com.google.protobuf:protobuf-java-util:4.28.2'
-    implementation 'com.google.protobuf:protoc:4.28.2'
 
     implementation "io.grpc:grpc-protobuf:1.68.0"  // gRPC를 사용할 경우
     implementation "io.grpc:grpc-stub:1.68.0"      // gRPC를 사용할 경우
+    implementation 'io.grpc:protoc-gen-grpc-java:1.68.0'
+    implementation "io.grpc:grpc-netty:1.68.0"
+
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // gRPC 컴파일시 javax 어노테이션 오류가 발생하지 않는다. 없다면, @javax.annotation.Generated 어노테이션에서 오류 발생
 }
 
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:4.28.2"
     }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option 'lite'
-                }
-            }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.68.0'
         }
+    }
+    generateProtoTasks {
+        all()*.plugins { grpc {} }
     }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+// protobuf 플러그인을 통해 생성된 코드가 빌드 경로에 포함되도록 설정합니다.
+// grpc 및 java 소스 디렉터리 경로를 각각 지정하여, Protobuf와 gRPC로 생성된 Java 코드를 소스셋에 추가합니다.
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
 }
 

@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: ProtobufTest
+server:
+  port: 8081

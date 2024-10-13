@@ -1,0 +1,38 @@
+syntax = "proto3"; // protobuf 버전 (proto2 또는 proto3)
+// prot2 vs prot3, https://cloud.google.com/apis/design/proto3?hl=ko
+
+option java_multiple_files = true;
+option java_package = "com.example.protobuf"; // 패키지 설정
+option java_outer_classname = "EmployeeProtos"; // 생성된 클래스 외부 클래스
+// EmployeeProtos.java 파일 안에 여러 메시지들이 정의
+// EmployeeProtos.Employee, EmployeeProtos.GetEmployeeRequest <- 이 처럼 사용
+
+message Employee {  // 메시지 정의
+  optional string employeeNo = 1;  // 필드 유형과 순서
+  optional Company type = 2;
+  optional string name = 3;  // 필드 유형과 순서
+  optional string nickname = 4;     // 필드는 숫자로 고유하게 식별됨
+  optional int32 age = 5; // 기본적으로 optional
+
+  enum Company {
+    LG_CNS = 0; // default value
+    LG_Corp = 1;
+    LG_electronics = 2;
+  }
+}
+
+// GetEmployee 요청 메시지
+message GetEmployeeRequest {
+  string employeeNo = 1;
+}
+
+// GetEmployee 응답 메시지
+message GetEmployeeResponse {
+  Employee employee = 1;
+}
+
+// EmployeeService 서비스 정의
+service EmployeeService {
+  // 직원 정보를 가져오는 메서드
+  rpc GetEmployee (GetEmployeeRequest) returns (GetEmployeeResponse);
+}
